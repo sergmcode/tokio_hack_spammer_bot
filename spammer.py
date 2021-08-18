@@ -1,18 +1,19 @@
 # http://t.me/tokiohackspammerbot
 
 import dotenv, os
-dotenv.load_dotenv()
-
-TOKEN = os.environ['TOKEN']
-print(TOKEN)
-
 import telegram, telegram.ext
 from telegram.ext import MessageHandler, CommandHandler
 from telegram.ext import CallbackContext
 from telegram import Update
 
-updater = telegram.ext.Updater(TOKEN)
+dotenv.load_dotenv()
 
+TOKEN = os.environ['TOKEN']
+HEROKU_APP_NAME = 'tokiohackspammerbot'
+
+print(TOKEN)
+
+updater = telegram.ext.Updater(TOKEN)
 dispatcher = updater.dispatcher
 
 def start(update: telegram.Update, context: telegram.ext.CallbackContext):
@@ -43,6 +44,15 @@ dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('spam', spam))
 
 print(updater.bot.get_me())
-updater.start_polling()
+# updater.start_polling()
+
+# import os
+PORT = int(os.environ.get('PORT', '8443'))
+print(PORT)
+updater.start_webhook(listen="0.0.0.0",
+                      port=PORT,
+                      url_path=TOKEN,
+                      webhook_url=f"https://{HEROKU_APP_NAME}.herokuapp.com/" + TOKEN)
+
 
 updater.idle()
